@@ -1,3 +1,5 @@
-name = "abhisingh-techx-worker"
-main = "index.js"
+name = "supply-chain-management-frontend"
 compatibility_date = "2025-06-18"
+
+[site]
+bucket = "./frontend/out"

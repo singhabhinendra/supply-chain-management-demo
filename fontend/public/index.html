@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supply Chain Management System</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📦</text></svg>">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Custom Styles -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .animate-in {
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes loading {
+            0% { width: 0%; }
+            50% { width: 70%; }
+            100% { width: 100%; }
+        }
+        
+        .loading-bar {
+            animation: loading 2s ease-in-out;
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .progress-bar {
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            border-radius: 9999px;
+            height: 100%;
+            transition: width 0.5s ease;
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .status-critical {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+        
+        .status-low {
+            background: #fef3c7;
+            color: #d97706;
+            border: 1px solid #fed7aa;
+        }
+        
+        .status-good {
+            background: #f0fdf4;
+            color: #16a34a;
+            border: 1px solid #bbf7d0;
+        }
+        
+        .tab-button {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+        
+        .tab-button.active {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tab-button:not(.active) {
+            background: rgba(255, 255, 255, 0.5);
+            color: #6b7280;
+        }
+        
+        .tab-button:not(.active):hover {
+            background: rgba(255, 255, 255, 0.8);
+            color: #374151;
+        }
+
+        .gradient-card {
+            background: linear-gradient(135deg, var(--tw-gradient-stops));
+        }
+
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 via-white to-purple-50 min-h-screen">
+    <div id="app">
+        <!-- Loading Screen -->
+        <div id="loading" class="fixed inset-0 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center z-50">
+            <div class="text-center text-white">
+                <div class="text-6xl mb-4">📦</div>
+                <h1 class="text-3xl font-bold mb-2">Supply Chain Management</h1>
+                <p class="text-blue-100 mb-8">Loading your dashboard...</p>
+                <div class="w-64 h-2 bg-white/20 rounded-full overflow-hidden">
+                    <div class="h-full bg-white rounded-full loading-bar"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Application -->
+        <div id="main-app" class="hidden">
+            <!-- Header -->
+            <header class="glass-effect border-b shadow-sm sticky top-0 z-40">
+                <div class="max-w-7xl mx-auto px-6 py-4">
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center gap-4">
+                            <div class="text-3xl">📦</div>
+                            <div>
+                                <h1 class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                                    Supply Chain Management
+                                </h1>
+                                <p class="text-sm text-gray-600">Real-time inventory & procurement analytics</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <button id="darkModeToggle" class="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors">
+                                ☀️
+                            </button>
+                            <button class="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg hover:from-blue-600 hover:to-purple-600 transition-all shadow-lg">
+                                ⚡ Quick Actions
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Navigation Tabs -->
+            <nav class="max-w-7xl mx-auto px-6 py-4">
+                <div class="flex gap-2 glass-effect p-2 rounded-lg border shadow-sm">
+                    <button class="tab-button active" data-tab="dashboard">
+                        📊 Dashboard
+                    </button>
+                    <button class="tab-button" data-tab="inventory">
+                        📦 Inventory
+                    </button>
+                    <button class="tab-button" data-tab="orders">
+                        🚚 Orders
+                    </button>
+                    <button class="tab-button" data-tab="suppliers">
+                        👥 Suppliers
+                    </button>
+                    <button class="tab-button" data-tab="procurement">
+                        🔄 Procurement
+                    </button>
+                </div>
+            </nav>
+            
+            <!-- Main Content -->
+            <main class="max-w-7xl mx-auto px-6 pb-8">
+                <!-- Dashboard Tab -->
+                <div id="dashboard-tab" class="tab-content">
+                    <!-- KPI Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        <div class="gradient-card from-blue-500 to-blue-600 text-white p-6 rounded-xl shadow-xl card-hover">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <p class="text-blue-100 text-sm">Total Inventory</p>
+                                    <p class="text-3xl font-bold" id="total-inventory">15,420</p>
+                                </div>
+                                <div class="text-3xl opacity-80">📦</div>
+                            </div>
+                            <div class="flex items-center gap-1 text-blue-100 text-sm">
+                                📈 +2.5% from last month
+                            </div>
+                        </div>
+                        
+                        <div class="gradient-card from-orange-500 to-red-500 text-white p-6 rounded-xl shadow-xl card-hover">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <p class="text-orange-100 text-sm">Low Stock Alerts</p>
+                                    <p class="text-3xl font-bold" id="low-stock">23</p>
+                                </div>
+                                <div class="text-3xl opacity-80 animate-pulse">⚠️</div>
+                            </div>
+                            <p class="text-orange-100 text-sm">Requires attention</p>
+                        </div>
+                        
+                        <div class="gradient-card from-purple-500 to-purple-600 text-white p-6 rounded-xl shadow-xl card-hover">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <p class="text-purple-100 text-sm">Pending Orders</p>
+                                    <p class="text-3xl font-bold" id="pending-orders">45</p>
+                                </div>
+                                <div class="text-3xl opacity-80">⏰</div>
+                            </div>
+                            <p class="text-purple-100 text-sm">Awaiting processing</p>
+                        </div>
+                        
+                        <div class="gradient-card from-green-500 to-green-600 text-white p-6 rounded-xl shadow-xl card-hover">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <p class="text-green-100 text-sm">System Efficiency</p>
+                                    <p class="text-3xl font-bold" id="efficiency">94.2%</p>
+                                </div>
+                                <div class="text-3xl opacity-80">⚡</div>
+                            </div>
+                            <div class="flex items-center gap-1 text-green-100 text-sm">
+                                🎯 Optimal performance
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Performance Charts -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                        <div class="lg:col-span-2 glass-effect rounded-xl shadow-xl p-6">
+                            <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                                📊 Performance Analytics
+                            </h3>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div class="text-center p-4 rounded-lg bg-blue-50 hover:bg-blue-100 transition-colors cursor-pointer">
+                                    <div class="text-2xl font-bold text-blue-600">87.8%</div>
+                                    <div class="text-sm text-blue-700">On-Time Delivery</div>
+                                </div>
+                                <div class="text-center p-4 rounded-lg bg-green-50 hover:bg-green-100 transition-colors cursor-pointer">
+                                    <div class="text-2xl font-bold text-green-600">12.5%</div>
+                                    <div class="text-sm text-green-700">Cost Reduction</div>
+                                </div>
+                                <div class="text-center p-4 rounded-lg bg-purple-50 hover:bg-purple-100 transition-colors cursor-pointer">
+                                    <div class="text-2xl font-bold text-purple-600">127</div>
+                                    <div class="text-sm text-purple-700">Active Suppliers</div>
+                                </div>
+                                <div class="text-center p-4 rounded-lg bg-orange-50 hover:bg-orange-100 transition-colors cursor-pointer">
+                                    <div class="text-2xl font-bold text-orange-600">$284K</div>
+                                    <div class="text-sm text-orange-700">Monthly Spend</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Activity Feed -->
+                        <div class="glass-effect rounded-xl shadow-xl p-6">
+                            <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                                📈 Live Activity Feed
+                            </h3>
+                            <div id="activity-feed" class="space-y-3">
+                                <!-- Activities will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Alerts -->
+                    <div class="glass-effect rounded-xl shadow-xl p-6">
+                        <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                            ⚠️ Critical Alerts
+                        </h3>
+                        <div class="space-y-4">
+                            <div class="p-4 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors cursor-pointer">
+                                <div class="flex items-center gap-3">
+                                    <div class="text-2xl">🚨</div>
+                                    <div class="flex-1">
+                                        <p class="font-medium text-red-800">Critical Stock Level</p>
+                                        <p class="text-sm text-red-600">Packaging Materials (INV003) has only 45 units remaining</p>
+                                    </div>
+                                    <span class="status-badge status-critical animate-pulse">URGENT</span>
+                                </div>
+                            </div>
+                            
+                            <div class="p-4 bg-orange-50 border border-orange-200 rounded-lg hover:bg-orange-100 transition-colors cursor-pointer">
+                                <div class="flex items-center gap-3">
+                                    <div class="text-2xl">⏰</div>
+                                    <div class="flex-1">
+                                        <p class="font-medium text-orange-800">Delayed Shipment</p>
+                                        <p class="text-sm text-orange-600">Order PO001 from MetalCorp Ltd is 2 days delayed</p>
+                                    </div>
+                                    <span class="status-badge status-low">DELAYED</span>
+                                </div>
+                            </div>
+                            
+                            <div class="p-4 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors cursor-pointer">
+                                <div class="flex items-center gap-3">
+                                    <div class="text-2xl">✅</div>
+                                    <div class="flex-1">
+                                        <p class="font-medium text-green-800">Order Delivered</p>
+                                        <p class="text-sm text-green-600">Electronic Components (PO002) successfully delivered</p>
+                                    </div>
+                                    <span class="status-badge status-good">COMPLETED</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Inventory Tab -->
+                <div id="inventory-tab" class="tab-content hidden">
+                    <div class="glass-effect rounded-xl shadow-xl p-6">
+                        <div class="flex justify-between items-center mb-6">
+                            <div>
+                                <h2 class="text-2xl font-bold flex items-center gap-2">
+                                    📦 Inventory Management
+                                </h2>
+                                <p class="text-gray-600">Track stock levels and manage inventory items</p>
+                            </div>
+                            <button class="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg hover:from-blue-600 hover:to-purple-600 transition-all shadow-lg">
+                                ➕ Add Item
+                            </button>
+                        </div>
+                        <div id="inventory-list" class="space-y-4">
+                            <!-- Inventory items will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Orders Tab -->
+                <div id="orders-tab" class="tab-content hidden">
+                    <div class="glass-effect rounded-xl shadow-xl p-6">
+                        <div class="flex justify-between items-center mb-6">
+                            <div>
+                                <h2 class="text-2xl font-bold flex items-center gap-2">
+                                    🚚 Order Tracking
+                                </h2>
+                                <p class="text-gray-600">Monitor procurement orders and shipments</p>
+                            </div>
+                            <button class="px-4 py-2 bg-gradient-to-r from-green-500 to-blue-500 text-white rounded-lg hover:from-green-600 hover:to-blue-600 transition-all shadow-lg">
+                                ➕ New Order
+                            </button>
+                        </div>
+                        <div id="orders-list" class="space-y-4">
+                            <!-- Orders will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Suppliers Tab -->
+                <div id="suppliers-tab" class="tab-content hidden">
+                    <div class="glass-effect rounded-xl shadow-xl p-6">
+                        <div class="flex justify-between items-center mb-6">
+                            <div>
+                                <h2 class="text-2xl font-bold flex items-center gap-2">
+                                    👥 Supplier Management
+                                </h2>
+                                <p class="text-gray-600">Manage supplier relationships and communications</p>
+                            </div>
+                            <button class="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all shadow-lg">
+                                ➕ Add Supplier
+                            </button>
+                        </div>
+                        <div id="suppliers-list" class="space-y-4">
+                            <!-- Suppliers will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Procurement Tab -->
+                <div id="procurement-tab" class="tab-content hidden">
+                    <div class="glass-effect rounded-xl shadow-xl p-6">
+                        <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
+                            🔄 Procurement Workflow
+                        </h2>
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div class="space-y-4">
+                                <h3 class="text-lg font-semibold">Purchase Order Process</h3>
+                                <div class="space-y-3">
+                                    <div class="flex items-center gap-3 p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors cursor-pointer">
+                                        <div class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold">1</div>
+                                        <div>
+                                            <p class="font-medium">Request Creation</p>
+                                            <p class="text-sm text-gray-600">Create purchase requisition</p>
+                                        </div>
+                                        <span class="status-badge status-good ml-auto animate-pulse">Active</span>
+                                    </div>
+                                    
+                                    <div class="flex items-center gap-3 p-4 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors cursor-pointer">
+                                        <div class="w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold">2</div>
+                                        <div>
+                                            <p class="font-medium">Manager Approval</p>
+                                            <p class="text-sm text-gray-600">Awaiting manager review</p>
+                                        </div>
+                                        <span class="status-badge status-low ml-auto">Pending</span>
+                                    </div>
+                                    
+                                    <div class="flex items-center gap-3 p-4 bg-gray-50 rounded-lg opacity-60">
+                                        <div class="w-8 h-8 bg-gray-400 text-white rounded-full flex items-center justify-center font-bold">3</div>
+                                        <div>
+                                            <p class="font-medium">Purchase Order</p>
+                                            <p class="text-sm text-gray-600">Generate and send PO</p>
+                                        </div>
+                                        <span class="px-3 py-1 bg-gray-200 text-gray-600 rounded-full text-xs ml-auto">Waiting</span>
+                                    </div>
+                                    
+                                    <div class="flex items-center gap-3 p-4 bg-gray-50 rounded-lg opacity-60">
+                                        <div class="w-8 h-8 bg-gray-400 text-white rounded-full flex items-center justify-center font-bold">4</div>
+                                        <div>
+                                            <p class="font-medium">Delivery Tracking</p>
+                                            <p class="text-sm text-gray-600">Monitor shipment status</p>
+                                        </div>
+                                        <span class="px-3 py-1 bg-gray-200 text-gray-600 rounded-full text-xs ml-auto">Waiting</span>
+                                    </div>
+                                </div>
+                                
+                                <button class="w-full px-4 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg hover:from-blue-600 hover:to-purple-600 transition-all shadow-lg">
+                                    ➕ Create New Purchase Request
+                                </button>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                <h3 class="text-lg font-semibold">Performance Metrics</h3>
+                                <div class="space-y-4">
+                                    <div class="p-4 bg-blue-50 rounded-lg">
+                                        <div class="flex justify-between mb-2">
+                                            <span class="font-medium">Processing Time</span>
+                                            <span class="text-sm text-gray-600">3.2 days avg</span>
+                                        </div>
+                                        <div class="w-full bg-blue-200 rounded-full h-2">
+                                            <div class="progress-bar" style="width: 75%"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="p-4 bg-green-50 rounded-lg">
+                                        <div class="flex justify-between mb-2">
+                                            <span class="font-medium">On-Time Delivery</span>
+                                            <span class="text-sm text-gray-600">92%</span>
+                                        </div>
+                                        <div class="w-full bg-green-200 rounded-full h-2">
+                                            <div class="progress-bar" style="width: 92%"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="p-4 bg-purple-50 rounded-lg">
+                                        <div class="flex justify-between mb-2">
+                                            <span class="font-medium">Cost Optimization</span>
+                                            <span class="text-sm text-gray-600">12.5% savings</span>
+                                        </div>
+                                        <div class="w-full bg-purple-200 rounded-full h-2">
+                                            <div class="progress-bar" style="width: 85%"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-2 gap-4 mt-6">
+                                        <div class="text-center p-4 gradient-card from-green-500 to-green-600 text-white rounded-lg card-hover cursor-pointer">
+                                            <div class="text-2xl font-bold">$47K</div>
+                                            <div class="text-sm opacity-90">Monthly Savings</div>
+                                        </div>
+                                        <div class="text-center p-4 gradient-card from-blue-500 to-blue-600 text-white rounded-lg card-hover cursor-pointer">
+                                            <div class="text-2xl font-bold">156</div>
+                                            <div class="text-sm opacity-90">Orders This Month</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    
+    <script src="/js/app.js"></script>
+</body>
+</html>

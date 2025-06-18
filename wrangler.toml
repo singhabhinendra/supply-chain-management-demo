@@ -1,0 +1,3 @@
+name = "abhisingh-techx-worker"
+main = "src/index.ts"  # or "index.js" or correct entry point
+compatibility_date = "2025-06-18"
